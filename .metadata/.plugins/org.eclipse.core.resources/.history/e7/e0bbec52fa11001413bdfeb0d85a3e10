@@ -221,7 +221,7 @@ public class GameScene extends AbstractScene implements IOnSceneTouchListener {
 	}
 	
 	public void initBranch() {
-		
+		/*
 		addBranch(1000,activity.CH);
 		addBranch(1100,activity.CH);
 		addBranch(1200,activity.CH);
@@ -233,7 +233,7 @@ public class GameScene extends AbstractScene implements IOnSceneTouchListener {
 		addBranch(2000,activity.CH);
 		addBranch(3000,activity.CH);
 		addBranch(4000,activity.CH);
-		
+		*/
 	}
 	
 	public void addBranch(float posX, float posY) {
