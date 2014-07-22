@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Delete 13 resources" deleteContents="true" description="Delete 13 resources" element1="/AndEngine" element10="/AndEngineScriptingExtension" element11="/AndEngineSVGTextureRegionExtension" element12="/AndEngineTMXTiledMapExtension" element13="/MyGame" element2="/AndEngineAugmentedRealityExtension" element3="/AndEngineCocosBuilderExtension" element4="/AndEngineCocosBuilderExtensionCCAnimatedSpriteExtension" element5="/AndEngineExamples" element6="/AndEngineLiveWallpaperExtension" element7="/AndEngineMODPlayerExtension" element8="/AndEngineMultiplayerExtension" element9="/AndEnginePhysicsBox2DExtension" flags="7" id="org.eclipse.ltk.core.refactoring.delete.resources" resources="13" stamp="1406072639672"/>
+</session>
