@@ -61,6 +61,8 @@ public class GameScene extends AbstractScene implements IOnSceneTouchListener {
 	private Sprite parallaxLayerBackSprite;
 	private Sprite parallaxLayerMidSprite;
 	private Sprite parallaxLayerFrontSprite;
+	private Sprite parallaxLayerFront2Sprite;
+	
 	private Sprite coin;
 	private Sprite landingSprite;
 	private Sprite branch;
@@ -100,7 +102,8 @@ public class GameScene extends AbstractScene implements IOnSceneTouchListener {
 		//spriteManager.addSprite("copter", "testCopter.png");
 		spriteManager.addSprite("parallaxLayerBackSprite", "back_parallax.png");
 		spriteManager.addSprite("parallaxLayerMidSprite", "mid_parallax.png");
-		spriteManager.addSprite("parallaxLayerFrontSprite", "front_parallax.png");
+		spriteManager.addSprite("parallaxLayerFrontSprite", "front_1_parallax.png");
+		spriteManager.addSprite("parallaxLayerFront2Sprite", "front_2_parallax.png");
 		
 		try {
 			this.aTexture = new AssetBitmapTexture(activity.getTextureManager(), activity.getAssets(), "redCopter_tiled.png", TextureOptions.BILINEAR);
@@ -371,11 +374,13 @@ public class GameScene extends AbstractScene implements IOnSceneTouchListener {
 		spriteManager.setSprite("parallaxLayerBackSprite", 0, 0);
 		spriteManager.setSprite("parallaxLayerMidSprite", 0, activity.CH - spriteManager.getSpriteObject("parallaxLayerMidSprite").getRegion().getHeight() - 80);
 		spriteManager.setSprite("parallaxLayerFrontSprite", 0, 0);
+		spriteManager.setSprite("parallaxLayerFront2Sprite", 0, 0);
 		
 		//Get Sprites from SpriteManger
 		parallaxLayerBackSprite = spriteManager.getSprite("parallaxLayerBackSprite");
 		parallaxLayerMidSprite = spriteManager.getSprite("parallaxLayerMidSprite");
 		parallaxLayerFrontSprite = spriteManager.getSprite("parallaxLayerFrontSprite");
+		parallaxLayerFront2Sprite = spriteManager.getSprite("parallaxLayerFront2Sprite");
 		
 		parallaxLayerBackSprite.setOffsetCenter(0, 0);
 		parallaxLayerBackSprite.setSize(activity.CW, activity.CH);
@@ -385,7 +390,10 @@ public class GameScene extends AbstractScene implements IOnSceneTouchListener {
 		autoParallaxBackground.attachParallaxEntity(new ParallaxEntity(-10.0f, parallaxLayerMidSprite));
 
 		parallaxLayerFrontSprite.setOffsetCenter(0, 0);
-		autoParallaxBackground.attachParallaxEntity(new ParallaxEntity(-20.0f, parallaxLayerFrontSprite));
+		autoParallaxBackground.attachParallaxEntity(new ParallaxEntity(-15.0f, parallaxLayerFrontSprite));
+		
+		parallaxLayerFront2Sprite.setOffsetCenter(0, 0);
+		autoParallaxBackground.attachParallaxEntity(new ParallaxEntity(-20.0f, parallaxLayerFront2Sprite));
 		
 		this.camera.addCamera(autoParallaxBackground);
 		
