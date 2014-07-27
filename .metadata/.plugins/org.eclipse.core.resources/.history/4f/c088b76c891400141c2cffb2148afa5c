@@ -7,7 +7,6 @@ import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.opengl.texture.region.TextureRegionFactory;
 
 import com.money.captainbird.GameActivity;
-import com.money.captainbird.SceneManager;
 import com.money.captainbird.resources.ResourceManager;
 
 public class SpriteObject {

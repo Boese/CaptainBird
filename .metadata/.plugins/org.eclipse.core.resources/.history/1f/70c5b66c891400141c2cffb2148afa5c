@@ -9,7 +9,7 @@ import com.money.captainbird.resources.ResourceManager;
 
 public class SpriteManager {
 
-	private HashMap<String,SpriteObject> sprites;
+	private static HashMap<String,SpriteObject> sprites;
 	
 	public SpriteManager() {
 		sprites = new HashMap<String,SpriteObject>();

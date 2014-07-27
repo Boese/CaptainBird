@@ -40,23 +40,12 @@ import com.money.captainbird.SceneManager;
 
 public class MenuScene extends AbstractScene {
 	
-	private ITexture aTexture;
-	private TiledTextureRegion aTextureRegion;
-	private TiledSprite aSprite;
+	private AnimatedSprite aSprite;
 	
 	private Text start;
 	
 	@Override
 	public void loadResources() {
-		try {
-			this.aTexture = new AssetBitmapTexture(activity.getTextureManager(), activity.getAssets(), "redCopter_tiled.png", TextureOptions.BILINEAR);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		this.aTextureRegion = TextureRegionFactory.extractTiledFromTexture(this.aTexture, 3, 2);
-		this.aTexture.load();
-		
 		Font f = FontFactory.createFromAsset(engine.getFontManager(), engine.getTextureManager(), 256, 256, TextureOptions.BILINEAR, activity.getAssets(), "Geeza Pro Bold.ttf", 80f, true, Color.BLACK_ABGR_PACKED_INT);
 		f.load();
 		start = new Text(camera.getCenterX(), activity.CH-200, f, "Start Game!",vbom);
@@ -72,7 +61,7 @@ public class MenuScene extends AbstractScene {
 		final float centerX = camera.getCenterX();
 		final float centerY = camera.getCenterY();
 		
-		aSprite = new TiledSprite(centerX, centerY, aTextureRegion, vbom) {
+		aSprite = new AnimatedSprite(centerX, centerY, res.copter_region, vbom) {
 
 			@Override
 			public boolean onAreaTouched(TouchEvent pSceneTouchEvent,
@@ -83,15 +72,15 @@ public class MenuScene extends AbstractScene {
 			}
 			
 		};
-		aSprite.setCurrentTileIndex(0);
 		
+		aSprite.animate(20);
 		this.registerTouchArea(aSprite);
 		this.attachChild(aSprite);
 	}
 
 	@Override
 	public void unloadResources() {
-		// TODO Auto-generated method stub
+		aSprite = null;
 		
 	}
 

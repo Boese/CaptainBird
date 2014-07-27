@@ -1,10 +1,14 @@
 package com.money.captainbird.mycamera;
 
+import javax.microedition.khronos.opengles.GL10;
+
 import org.andengine.engine.camera.ZoomCamera;
 import org.andengine.entity.IEntity;
 import org.andengine.entity.scene.background.AutoParallaxBackground;
 import org.andengine.util.Constants;
 import org.andengine.util.debug.Debug;
+
+import android.opengl.GLES10;
 
 public class MyCamera extends ZoomCamera {
 
