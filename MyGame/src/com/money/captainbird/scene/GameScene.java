@@ -1,7 +1,9 @@
 package com.money.captainbird.scene;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import org.andengine.audio.sound.Sound;
 import org.andengine.audio.sound.SoundFactory;
@@ -16,6 +18,7 @@ import org.andengine.entity.scene.background.AutoParallaxBackground;
 import org.andengine.entity.scene.background.ParallaxBackground.ParallaxEntity;
 import org.andengine.entity.sprite.Sprite;
 import org.andengine.entity.text.Text;
+import org.andengine.extension.physics.box2d.PhysicsConnector;
 import org.andengine.extension.physics.box2d.PhysicsFactory;
 import org.andengine.extension.physics.box2d.PhysicsWorld;
 import org.andengine.input.touch.TouchEvent;
@@ -34,6 +37,7 @@ import org.xml.sax.Attributes;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.physics.box2d.Contact;
 import com.badlogic.gdx.physics.box2d.ContactImpulse;
 import com.badlogic.gdx.physics.box2d.ContactListener;
@@ -314,7 +318,7 @@ public class GameScene extends AbstractScene implements IOnSceneTouchListener {
 	private void loadLevel(int levelID)
 	{
 	    final SimpleLevelLoader levelLoader = new SimpleLevelLoader(vbom);
-	    final FixtureDef FIXTURE_DEF = PhysicsFactory.createFixtureDef(0, 0, 0);
+	    final FixtureDef FIXTURE_DEF = PhysicsFactory.createFixtureDef(1, 0, 1);
 	    
 	    levelLoader.registerEntityLoader(new EntityLoader<SimpleLevelEntityLoaderData>(LevelConstants.TAG_LEVEL)
 	    {
@@ -387,6 +391,14 @@ public class GameScene extends AbstractScene implements IOnSceneTouchListener {
 	        				super.onManagedUpdate(pSecondsElapsed);
 	        			}
 	        		};
+	            	/*
+	            	levelObject = new Sprite(x,y,res.obstacle_region, vbom);
+	        		Vector2[] v= new Vector2[3];
+	        		v[0] = new Vector2(-5,230);
+	        		v[1] = new Vector2(287,230);
+	        		v[2] = new Vector2(140,1);
+	        		final Body b = PhysicsFactory.createPolygonBody(mPhysicsWorld, levelObject, v, BodyType.StaticBody, FIXTURE_DEF);
+	        		*/
 	            }
 	            
 	            else if (type.equals(TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_COPTER)) 

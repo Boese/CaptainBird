@@ -1,2 +1,36 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<qualifiedTypeNameHistroy/>
+<qualifiedTypeNameHistroy>
+<fullyQualifiedTypeName name="javax.microedition.khronos.opengles.GL10"/>
+<fullyQualifiedTypeName name="android.opengl.GLU"/>
+<fullyQualifiedTypeName name="org.andengine.opengl.util.GLHelper"/>
+<fullyQualifiedTypeName name="org.andengine.opengl.texture.atlas.bitmap.BuildableBitmapTextureAtlas"/>
+<fullyQualifiedTypeName name="org.andengine.opengl.texture.region.ITextureRegion"/>
+<fullyQualifiedTypeName name="org.andengine.opengl.texture.TextureOptions"/>
+<fullyQualifiedTypeName name="org.andengine.opengl.texture.atlas.buildable.builder.BlackPawnTextureAtlasBuilder"/>
+<fullyQualifiedTypeName name="org.andengine.opengl.texture.atlas.bitmap.source.IBitmapTextureAtlasSource"/>
+<fullyQualifiedTypeName name="org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas"/>
+<fullyQualifiedTypeName name="org.andengine.opengl.texture.atlas.buildable.builder.ITextureAtlasBuilder.TextureAtlasBuilderException"/>
+<fullyQualifiedTypeName name="org.andengine.util.debug.Debug"/>
+<fullyQualifiedTypeName name="org.andengine.entity.modifier.ScaleModifier"/>
+<fullyQualifiedTypeName name="org.andengine.util.level.EntityLoader"/>
+<fullyQualifiedTypeName name="org.andengine.util.level.simple.SimpleLevelEntityLoaderData"/>
+<fullyQualifiedTypeName name="org.andengine.entity.IEntity"/>
+<fullyQualifiedTypeName name="org.andengine.util.SAXUtils"/>
+<fullyQualifiedTypeName name="org.andengine.util.level.simple.SimpleLevelLoader"/>
+<fullyQualifiedTypeName name="org.andengine.util.level.constants.LevelConstants"/>
+<fullyQualifiedTypeName name="org.andengine.opengl.texture.region.TiledTextureRegion"/>
+<fullyQualifiedTypeName name="com.money.captainbird.scene.GameScene"/>
+<fullyQualifiedTypeName name="org.andengine.entity.sprite.AnimatedSprite"/>
+<fullyQualifiedTypeName name="org.andengine.engine.camera.Camera"/>
+<fullyQualifiedTypeName name="org.andengine.opengl.vbo.VertexBufferObjectManager"/>
+<fullyQualifiedTypeName name="com.money.captainbird.copter.Copter"/>
+<fullyQualifiedTypeName name="org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlasTextureRegionFactory"/>
+<fullyQualifiedTypeName name="org.andengine.entity.primitive.Line"/>
+<fullyQualifiedTypeName name="org.andengine.extension.physics.box2d.PhysicsWorld"/>
+<fullyQualifiedTypeName name="com.badlogic.gdx.physics.box2d.ContactListener"/>
+<fullyQualifiedTypeName name="com.badlogic.gdx.math.Vector2"/>
+<fullyQualifiedTypeName name="com.money.captainbird.SceneManager"/>
+<fullyQualifiedTypeName name="com.money.captainbird.resources.ResourceManager"/>
+<fullyQualifiedTypeName name="com.money.captainbird.physicsworld.Physics"/>
+<fullyQualifiedTypeName name="org.andengine.entity.scene.Scene"/>
+</qualifiedTypeNameHistroy>
