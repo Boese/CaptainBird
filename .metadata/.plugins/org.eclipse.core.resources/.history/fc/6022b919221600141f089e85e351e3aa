@@ -1,0 +1,26 @@
+package com.money.captainbird.resources;
+
+import org.andengine.opengl.texture.region.ITextureRegion;
+
+public class Resource {
+	public String name;
+	public String type;
+	public String texture;
+	public String image;
+	public String row;
+	public String col;
+	public ITextureRegion b;
+	
+	@Override
+	public String toString() {
+		String t = "name: " + name;
+		t += "type: " + type;
+		t += "texture: " + texture;
+		t += "image: " + image;
+		return t;
+	}
+	
+	public ITextureRegion getRegion() {
+		return b;
+	}
+}

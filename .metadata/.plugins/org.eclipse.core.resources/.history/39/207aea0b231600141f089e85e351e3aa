@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<resource name="copter">
+	 <type>pixelperfect</type>
+	 <texture>tiled</texture>
+	 <image>gfx/game/redCopter_tiled.png</image>
+	 <row>2</row>
+	 <col>3</col>
+	</resource>
+	<resource name="coin">
+	 <type>pixelperfect</type>
+	 <texture>tiled</texture>
+	 <image>gfx/game/redCopter_tiled.png</image>
+	 <row>2</row>
+	 <col>3</col>
+	</resource>
+</resources>

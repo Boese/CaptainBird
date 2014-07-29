@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<level width="10000" height="720">    
+	<entity x="50" y="500" type="copter" name="copter"/>
+	<entity x="500" y="720" type="obstacle" name="pyramid"/>
+	<entity x="1500" y="720" type="obstacle" name="pyramid"/>
+	<entity x="2500" y="720" type="obstacle" name="pyramid"/>
+	<entity x="800" y="720" type="obstacle" name="pyramid"/>
+	<entity x="600" y="720" type="obstacle" name="pyramid"/>
+	<entity x="550" y="720" type="obstacle" name="pyramid"/>
+	<entity x="4100" y="720" type="obstacle" name="pyramid"/>
+	<entity x="4100" y="720" type="obstacle" name="dune"/>
+	<entity x="1000" y="100" type="coin" name="coin"/>
+	<entity x="1200" y="200" type="coin" name="coin"/>
+	<entity x="1400" y="500" type="coin" name="coin"/>
+	<entity x="1600" y="400" type="coin" name="coin"/>
+	<entity x="1800" y="600" type="coin" name="coin"/>
+	<entity x="2000" y="200" type="coin" name="coin"/>
+	<entity x="3000" y="300" type="coin" name="coin"/>
+	<entity x="4000" y="500" type="coin" name="coin"/>
+</level>

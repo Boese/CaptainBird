@@ -1,0 +1,5 @@
+package com.money.captainbird.copter;
+
+public abstract class Copter {
+
+}

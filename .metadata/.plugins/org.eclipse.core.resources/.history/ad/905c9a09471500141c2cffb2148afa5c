@@ -1,0 +1,10 @@
+package com.money.captainbird.physicsworld;
+
+public class Physics {
+	private static PhysicsWorld p;
+	
+	public Physics(PhysicsWorld physicsWorld) {
+		this.p = physicsWorld;
+		physicsWorld.
+	}
+}

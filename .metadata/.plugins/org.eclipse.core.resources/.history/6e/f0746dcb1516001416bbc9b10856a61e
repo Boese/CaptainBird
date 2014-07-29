@@ -1,0 +1,27 @@
+package com.money.captainbird.resources;
+
+import org.andengine.util.debug.Debug;
+import org.xml.sax.Attributes;
+import org.xml.sax.SAXException;
+
+public class SAXHandler extends DefaultHandler{
+	public SAXHandler() {
+		super();
+	}
+	@Override
+	public void startElement(String uri, String localName, String qName, Attributes attributes)
+							throws SAXException {
+		Resource r = new Resource();
+		r.name = attributes.getValue("name");
+		r.type = attributes.getValue("type");
+		r.texture = attributes.getValue("texture");
+		r.region = attributes.getValue("region");
+		r.image = attributes.getValue("image");
+		r.row = attributes.getValue("row");
+		r.col = attributes.getValue("col");
+		Debug.i(r.toString());
+		ResourceManager.getInstance();
+		ResourceManager.resourceList.add(r);
+	}
+}
+}

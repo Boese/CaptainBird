@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resource name="copter" type="pixelperfect" texture="tiled" region="pttexture" image="redCopter_tiled.png" row="2" col="3"/>

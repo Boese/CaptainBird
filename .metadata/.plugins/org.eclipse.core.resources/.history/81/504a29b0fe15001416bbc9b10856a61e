@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resource name="coin" type="bitmap" texture="asset" region="texture" image="coin.png" row="0" col="0">
+<resource name="pyramid" type="pixelperfect" texture="asset" region="ptexture" image="pyramid.png" row="0" col="0">
+<resource name="copter" type="pixelperfect" texture="tiled" region="pttexture" image="redCopter_tiled.png" row="2" col="3">
