@@ -1,10 +1,7 @@
 package com.money.captainbird.scene;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
-
 import org.andengine.audio.sound.Sound;
 import org.andengine.audio.sound.SoundFactory;
 import org.andengine.engine.camera.hud.HUD;
@@ -18,7 +15,6 @@ import org.andengine.entity.scene.background.AutoParallaxBackground;
 import org.andengine.entity.scene.background.ParallaxBackground.ParallaxEntity;
 import org.andengine.entity.sprite.Sprite;
 import org.andengine.entity.text.Text;
-import org.andengine.extension.physics.box2d.PhysicsConnector;
 import org.andengine.extension.physics.box2d.PhysicsFactory;
 import org.andengine.extension.physics.box2d.PhysicsWorld;
 import org.andengine.input.touch.TouchEvent;
@@ -37,49 +33,67 @@ import org.xml.sax.Attributes;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
-import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.physics.box2d.Contact;
 import com.badlogic.gdx.physics.box2d.ContactImpulse;
 import com.badlogic.gdx.physics.box2d.ContactListener;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.Manifold;
+import com.makersf.andengine.extension.collisions.entity.sprite.PixelPerfectSprite;
+import com.makersf.andengine.extension.collisions.opengl.texture.region.PixelPerfectTextureRegion;
+import com.money.captainbird.GameActivity;
 import com.money.captainbird.SceneManager;
 import com.money.captainbird.copter.Copter;
+import com.money.captainbird.resources.Resource;
+import com.money.captainbird.resources.ResourceManager;
 
 public class GameScene extends AbstractScene implements IOnSceneTouchListener {
 
 	//PHYSICS
 	private PhysicsWorld mPhysicsWorld;
-	private static final float GRAVITY = -100f;
+	private static final float GRAVITY_X = Float.parseFloat(ResourceManager.properties.GRAVITY_X);
+	private static final float GRAVITY_Y = Float.parseFloat(ResourceManager.properties.GRAVITY_Y);
+	private static final float LEVEL_W = Float.parseFloat(ResourceManager.properties.LEVEL_W);
+	private static final float LEVEL_H = Float.parseFloat(ResourceManager.properties.LEVEL_H);
 	
 	//BACKGROUND
 	private AutoParallaxBackground autoParallaxBackground;
 	
-	//SPRITES, SOUNDS, SCORE, WIN_LEVEL
+	//SOUNDS, SCORE, WIN_LEVEL
 	private Copter copter;
-	private Sprite landingSprite;
 	private Sound explosionSound;
 	private Sound coinSound;
 	private int scoredPoints = 0;
 	private Text scoreText;
 	private Boolean landed = false;
+	private static float LAND_CENTER;
 	
 	//XML ATTRIBUTES
 	private static final String TAG_ENTITY = "entity";
 	private static final String TAG_ENTITY_ATTRIBUTE_X = "x";
 	private static final String TAG_ENTITY_ATTRIBUTE_Y = "y";
+	private static final String TAG_ENTITY_ATTRIBUTE_SCALE = "scale";
 	private static final String TAG_ENTITY_ATTRIBUTE_TYPE = "type";
+	private static final String TAG_ENTITY_ATTRIBUTE_NAME = "name";
 	
-	private static final Object TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_COIN = "coin";
-	private static final Object TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_COPTER = "copter";
+	private static final Object TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_COLLECTABLE = "collectable";
+	private static final Object TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_VEHICLE = "vehicle";
 	private static final Object TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_OBSTACLE = "obstacle";
+	
 	
 	@Override
 	public void loadResources() {
-		//CREATE HUD
-		Font f = FontFactory.createFromAsset(engine.getFontManager(), engine.getTextureManager(), 256, 256, TextureOptions.BILINEAR, activity.getAssets(), "Geeza Pro Bold.ttf", 40f, true, Color.YELLOW_ABGR_PACKED_INT);
+		//LOAD SOUNDS
+		try {
+			explosionSound = SoundFactory.createSoundFromAsset(activity.getSoundManager(), activity, "explosion.ogg");
+			coinSound = SoundFactory.createSoundFromAsset(activity.getSoundManager(), activity, "coin1.wav");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		//LOAD HUD
+		Font f = FontFactory.createFromAsset(engine.getFontManager(), engine.getTextureManager(), 256, 256, TextureOptions.BILINEAR, activity.getAssets(), "Geeza Pro Bold.ttf", 60f, true, Color.BLACK_ABGR_PACKED_INT);
 		f.load();
-		scoreText = new Text(activity.CW-100, activity.CH-100, f, "Score:0123456789",vbom);
+		scoreText = new Text(GameActivity.CW-150, GameActivity.CH-75, f, "Score:0123456789",vbom);
 		HUD hud = new HUD();
 		hud.attachChild(scoreText);
 		camera.setHUD(hud);
@@ -94,28 +108,23 @@ public class GameScene extends AbstractScene implements IOnSceneTouchListener {
 
 	@Override
 	public void create() {
+		//LOAD CAMERA LEVEL WIDTH
+		camera.setLevelWidth(LEVEL_W);
+		
+		//SET TOUCH LISTENER
 		this.setOnSceneTouchListener(this);
 		
 		//CREATE PHYSICS
-		this.mPhysicsWorld = new PhysicsWorld(new Vector2(0f,GRAVITY), true);
+		this.mPhysicsWorld = new PhysicsWorld(new Vector2(GRAVITY_X,GRAVITY_Y), true);
 		this.registerUpdateHandler(mPhysicsWorld);
 		initPhysicsContact();
 		
 		//PARSE XML LEVEL
-		loadLevel(1);
+		loadLevel(1,1);
 		
-		//LOAD SOUNDS
-		try {
-			explosionSound = SoundFactory.createSoundFromAsset(activity.getSoundManager(), activity, "explosion.ogg");
-			coinSound = SoundFactory.createSoundFromAsset(activity.getSoundManager(), activity, "coin1.wav");
-		} catch (IOException e) {}
-		
-		//LOAD LEVEL BACKGROUND, BOUNDARIES, LANDING
+		//LOAD LEVEL BACKGROUND, BOUNDARIES, SOUNDS
 		initBackground();
-        initBorders(10000);
-        initLanding();
-        
-		camera.setZoomFactor(1f);
+        initBorders();
 	}
 
 	// JUMP COPTER UP
@@ -125,8 +134,7 @@ public class GameScene extends AbstractScene implements IOnSceneTouchListener {
 			if(!landed) {
 				copter.animateCopter();
 			}
-			else
-			{
+			else {
 				camera.setHUD(null);
 				SceneManager.getInstance().showScene(MenuScene.class);
 			}
@@ -137,25 +145,29 @@ public class GameScene extends AbstractScene implements IOnSceneTouchListener {
 	// PHYSICS CONTACT ON LANDING
 	public void initPhysicsContact() {
 		mPhysicsWorld.setContactListener(new ContactListener() {
-			private Body a = null;
-			private Body b = null;
+			private Object a = null;
+			private Object b = null;
 			@Override
 			public void beginContact(Contact contact) {
-				a = contact.getFixtureA().getBody();
-				b = contact.getFixtureB().getBody();
-					if(a.getUserData() == "copter" &&
-							b.getUserData() == "landingPlatform" ||
-							a.getUserData() == "landingPlatform" &&
-							b.getUserData() == "copter") {
+				a = contact.getFixtureA().getBody().getUserData();
+				b = contact.getFixtureB().getBody().getUserData();
+					if(a.equals("copter") && b.equals("landingPlatform") ||
+							a.equals("landingPlatform") && b.equals("copter")) {
 						copter.body.setLinearVelocity(new Vector2(0f,0f));
 						mPhysicsWorld.setGravity(new Vector2(0f,0f));
 						mPhysicsWorld.clearForces();
 						copter.stopAnimation();
-						
 						landed = true;
 						camera.setZoomFactor(1.5f);
-						camera.setCenter(landingSprite.getX()-250, copter.getY()+20);
+						camera.setCenter(LAND_CENTER, copter.getY()+20);
 						addToScore(5);
+					}
+					if(a.equals("copter") && b.equals("wall") ||
+							a.equals("wall") && b.equals("wall")) {
+    					explosionSound.play();
+    					camera.setHUD(null);
+    					autoParallaxBackground.setParallaxChangePerSecond(0);
+    					SceneManager.getInstance().showScene(MenuScene.class);
 					}
 			}
 			@Override
@@ -172,94 +184,47 @@ public class GameScene extends AbstractScene implements IOnSceneTouchListener {
 	public void initBackground() {
 		autoParallaxBackground = new AutoParallaxBackground(0, 0, 0, 30);
 		
-		Sprite back = new Sprite(0,0,res.back_parallax_region,vbom);
-		back.setOffsetCenter(0, 0);
-		back.setSize(activity.CW, activity.CH);
-		autoParallaxBackground.attachParallaxEntity(new ParallaxEntity(0f,back));
-		
-		Sprite mid = new Sprite(0,500,res.mid_parallax_region,vbom);
-		mid.setOffsetCenter(0, 0);
-		autoParallaxBackground.attachParallaxEntity(new ParallaxEntity(-10f,mid));
-		
-		Sprite front = new Sprite(0,0,res.front_parallax_region,vbom);
-		front.setOffsetCenter(0, 0);
-		autoParallaxBackground.attachParallaxEntity(new ParallaxEntity(-20f,front));
-		
+		ResourceManager.getInstance();
+		for (Resource r : ResourceManager.resourceList) {
+			Sprite b;
+			if(r.object.equalsIgnoreCase("layer")) {
+				b = new Sprite(Integer.parseInt(r.x), Integer.parseInt(r.y),r.iTextureRegion,vbom);
+				b.setOffsetCenter(0,0);
+				autoParallaxBackground.attachParallaxEntity(new ParallaxEntity(Integer.parseInt(r.speed),b));
+			}
+			else if(r.object.equalsIgnoreCase("background")) {
+				b = new Sprite(Integer.parseInt(r.x), Integer.parseInt(r.y),r.iTextureRegion,vbom);
+				b.setSize(GameActivity.CW, GameActivity.CH);
+				b.setOffsetCenter(0,0);
+				autoParallaxBackground.attachParallaxEntity(new ParallaxEntity(Integer.parseInt(r.speed),b));
+			}
+		}
 		GameScene.this.setBackground(autoParallaxBackground);
 		camera.addCamera(autoParallaxBackground);
 	}
 	
-	// INITIALIZE LANDING
-	public void initLanding() {
-		landingSprite = new Sprite(-150 + 4000 + activity.CW/2, 100,300,200, res.landing_region , vbom) {
-			private Boolean collide = false;
-			@Override
-			protected void onManagedUpdate(float p) {
-				super.onManagedUpdate(p);
-				if(this.collidesWith(copter) && !collide) {
-					collide = true;
-					explosionSound.play();
-					camera.setHUD(null);
-					autoParallaxBackground.setParallaxChangePerSecond(0);
-					camera.setHUD(null);
-					SceneManager.getInstance().showScene(MenuScene.class);
-				}
-			}
-		};
-		
-		final FixtureDef landingFixtureDef = PhysicsFactory.createFixtureDef(1f, 0.0f, 1f);
-		final Body lineBody = PhysicsFactory.createLineBody(mPhysicsWorld, -250 + 4000 + activity.CW/2, 202, 150 + 4000 + activity.CW/2, 202, landingFixtureDef, 32);
-		landingSprite.setCullingEnabled(true);
-
-		lineBody.setUserData("landingPlatform");
-
-		this.attachChild(landingSprite);
-	}
-	
 	// INITIALIZE BORDERS
-	public void initBorders(int w) {
-		Sprite bottomOuter = new Sprite(0, 0, w, .01f, res.copter_region, vbom) {
-			private Boolean collide = false;
-			@Override
-			protected void onManagedUpdate(float pSecondsElapsed) {
-				if(this.collidesWith(copter) && !collide) {
-					collide = true;
-					explosionSound.play();
-					camera.setHUD(null);
-					autoParallaxBackground.setParallaxChangePerSecond(0);
-					SceneManager.getInstance().showScene(MenuScene.class);
-				}
-				super.onManagedUpdate(pSecondsElapsed);
-			}
-			
-		};
-		Sprite edgeRight = new Sprite(-10 + 4000 + activity.CW/2, 0, .01f, 2000, res.copter_region, vbom) {
-			private Boolean collide = false;
-			@Override
-			protected void onManagedUpdate(float pSecondsElapsed) {
-				if(this.collidesWith(copter) && !collide) {
-					collide = true;
-					explosionSound.play();
-					camera.setHUD(null);
-					autoParallaxBackground.setParallaxChangePerSecond(0);
-					SceneManager.getInstance().showScene(MenuScene.class);
-				}
-				super.onManagedUpdate(pSecondsElapsed);
-			}
-			
-		};
-		
-		final Line topOuter = new Line(0, activity.CH, 10000, activity.CH, vbom);
+	public void initBorders() {
 		final FixtureDef wallFixtureDef = PhysicsFactory.createFixtureDef(0, 0.0f, 0.0f);
-		PhysicsFactory.createLineBody(mPhysicsWorld, topOuter, wallFixtureDef);
 		
-		this.attachChild(bottomOuter);
-		this.attachChild(edgeRight);
-		this.attachChild(topOuter);
+		final Line ceiling = new Line(0, GameScene.LEVEL_H, GameScene.LEVEL_W, GameScene.LEVEL_H, vbom);
+		PhysicsFactory.createLineBody(mPhysicsWorld, ceiling, wallFixtureDef);
+		
+		final Line rightwall = new Line(GameScene.LEVEL_W, 0, GameScene.LEVEL_W, GameScene.LEVEL_H, vbom);
+		final Body rightwallBody = PhysicsFactory.createLineBody(mPhysicsWorld, rightwall, wallFixtureDef);
+		rightwallBody.setUserData("wall");
+		
+		final Line ground = new Line(0, 0, GameScene.LEVEL_W, 0, vbom);
+		final Body groundBody = PhysicsFactory.createLineBody(mPhysicsWorld, ground, wallFixtureDef);
+		groundBody.setUserData("wall");
+		
+		this.attachChild(ceiling);
+		this.attachChild(rightwall);
+		this.attachChild(ground);
 	}
 
 	
-
+	// CLEAN UP SCENE
 	@Override
 	public void unloadResources() {
 		destroyPhysicsWorld();
@@ -274,8 +239,6 @@ public class GameScene extends AbstractScene implements IOnSceneTouchListener {
 	public void onPause() {
 		
 	}
-
-	
 
 	@Override
 	public void onResume() {
@@ -315,7 +278,7 @@ public class GameScene extends AbstractScene implements IOnSceneTouchListener {
 	}
 	
 	// LOAD LEVEL SPRITES THROUGH XML
-	private void loadLevel(int levelID)
+	private void loadLevel(int worldID, int levelID)
 	{
 	    final SimpleLevelLoader levelLoader = new SimpleLevelLoader(vbom);
 	    final FixtureDef FIXTURE_DEF = PhysicsFactory.createFixtureDef(1, 0, 1);
@@ -324,9 +287,6 @@ public class GameScene extends AbstractScene implements IOnSceneTouchListener {
 	    {
 	        public IEntity onLoadEntity(final String pEntityName, final IEntity pParent, final Attributes pAttributes, final SimpleLevelEntityLoaderData pSimpleLevelEntityLoaderData) throws IOException 
 	        {
-	            final int width = SAXUtils.getIntAttributeOrThrow(pAttributes, LevelConstants.TAG_LEVEL_ATTRIBUTE_WIDTH);
-	            final int height = SAXUtils.getIntAttributeOrThrow(pAttributes, LevelConstants.TAG_LEVEL_ATTRIBUTE_HEIGHT);
-	            
 	            return GameScene.this;
 	        }
 	    });
@@ -338,12 +298,16 @@ public class GameScene extends AbstractScene implements IOnSceneTouchListener {
 	            final int x = SAXUtils.getIntAttributeOrThrow(pAttributes, TAG_ENTITY_ATTRIBUTE_X);
 	            final int y = SAXUtils.getIntAttributeOrThrow(pAttributes, TAG_ENTITY_ATTRIBUTE_Y);
 	            final String type = SAXUtils.getAttributeOrThrow(pAttributes, TAG_ENTITY_ATTRIBUTE_TYPE);
+	            final String name = SAXUtils.getAttributeOrThrow(pAttributes, TAG_ENTITY_ATTRIBUTE_NAME);
+	            final float scale = SAXUtils.getFloatAttributeOrThrow(pAttributes, TAG_ENTITY_ATTRIBUTE_SCALE);
 	            
 	            final Sprite levelObject;
 	            
-	            if (type.equals(TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_COIN))
+	            Debug.i(name + " is loading");
+	            
+	            if (type.equals(TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_COLLECTABLE))
 	            {
-	                levelObject = new Sprite(x, y, res.coin_region, vbom)
+	                levelObject = new Sprite(x, y, res.getResource(name).iTextureRegion, vbom)
 	                {
 	                	private Boolean collide = false;
 	        			@Override
@@ -366,57 +330,67 @@ public class GameScene extends AbstractScene implements IOnSceneTouchListener {
 	        					final float localRotationCenterY = this.mLocalRotationCenterY;
 
 	        					pGLState.translateModelViewGLMatrixf(localRotationCenterX, localRotationCenterY, 0);
-	        					/* Note we are applying rotation around the y-axis and not the z-axis anymore! */
+	        					//Note we are applying rotation around the y-axis and not the z-axis anymore! 
 	        					pGLState.rotateModelViewGLMatrixf(-rotation, 0, 1, 0);
 	        					pGLState.translateModelViewGLMatrixf(-localRotationCenterX, -localRotationCenterY, 0);
 	        				}
 	        			}
 	        		};
+	        		levelObject.setScale(scale);
 	        		levelObject.registerEntityModifier(new LoopEntityModifier(new RotationModifier(2, 0, 360)));
 	            }          
 	            
 	            else if (type.equals(TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_OBSTACLE)) {
-	            	levelObject = new Sprite(x, y, res.obstacle_region, vbom) {
-	        			private Boolean collide = false;
-	        			@Override
-	        			protected void onManagedUpdate(float pSecondsElapsed) {
-	        				if(this.collidesWith(copter) && !collide) {
-	        					collide = true;
-	        					explosionSound.play();
-	        					camera.setHUD(null);
-	        					autoParallaxBackground.setParallaxChangePerSecond(0);
-	        					SceneManager.getInstance().showScene(MenuScene.class);
-	        					this.setIgnoreUpdate(true);
-	        				}
-	        				super.onManagedUpdate(pSecondsElapsed);
-	        			}
-	        		};
-	            	/*
-	            	levelObject = new Sprite(x,y,res.obstacle_region, vbom);
-	        		Vector2[] v= new Vector2[3];
-	        		v[0] = new Vector2(-5,230);
-	        		v[1] = new Vector2(287,230);
-	        		v[2] = new Vector2(140,1);
-	        		final Body b = PhysicsFactory.createPolygonBody(mPhysicsWorld, levelObject, v, BodyType.StaticBody, FIXTURE_DEF);
-	        		*/
+	            		levelObject = new PixelPerfectSprite(x, y, (PixelPerfectTextureRegion)res.getResource(name).iTextureRegion,vbom) {
+		            		private Boolean collide = false;
+		        			@Override
+		        			protected void onManagedUpdate(float pSecondsElapsed) {
+		        				if(this.collidesWith(copter) && !collide) {
+		        					collide = true;
+		        					explosionSound.play();
+		        					camera.setHUD(null);
+		        					autoParallaxBackground.setParallaxChangePerSecond(0);
+		        					SceneManager.getInstance().showScene(MenuScene.class);
+		        					this.setIgnoreUpdate(true);
+		        				}
+		        				super.onManagedUpdate(pSecondsElapsed);
+		        			}
+		            	};
+		            	levelObject.setScale(scale);
+		            	
+		            	if(name.equalsIgnoreCase("boxlanding")) {
+		            		levelObject.setTag(0);
+		            		float x1 = levelObject.getX()-(levelObject.getWidth()*scale)/2+15;
+		            		float y1 = (levelObject.getY()+(levelObject.getHeight()*scale)/2 + .3f);
+		            		float x2 = levelObject.getX()+(levelObject.getWidth()*scale)/2;
+		                	float y2 = y1;
+		                	LAND_CENTER = x1-20;
+			        		final Body lineBody = PhysicsFactory.createLineBody(mPhysicsWorld, x1,y1,x2,y2, FIXTURE_DEF, 32);
+			        		lineBody.setUserData("landingPlatform");
+		            	}
 	            }
 	            
-	            else if (type.equals(TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_COPTER)) 
+	            else if (type.equals(TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_VEHICLE)) 
 	            {
-	        		copter = new Copter(x, y, vbom, camera, mPhysicsWorld){};
+	        		copter = new Copter(x, y, scale, vbom, camera, mPhysicsWorld){};
 	        	    levelObject = copter;
 	            }
+	            
 	            else
 	            {
 	                throw new IllegalArgumentException();
 	            }
-
-	            levelObject.setCullingEnabled(true);
+	            
+            	try {
+					levelObject.setCullingEnabled(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 	            return levelObject;
 	        }
 	    });
 
-	    levelLoader.loadLevelFromAsset(activity.getAssets(), "level/" + levelID + ".lvl");
+	    levelLoader.loadLevelFromAsset(activity.getAssets(), "Worlds/World_" + worldID + "/levels/" + levelID + ".lvl");
 	}
 
 }

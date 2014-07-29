@@ -39,6 +39,12 @@ public class SceneManager {
 	    // TODO later load common resources here
 	    
 	    MenuScene menu = new MenuScene();
+	    try {
+			res.loadLevel(1);
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 	    menu.initialize(res);
 	    menu.loadResources();
 	    menu.create();
@@ -85,6 +91,12 @@ public class SceneManager {
 	        oldScene.unloadResources();
 	      }
 	      Debug.i("loading new scene");
+	      try {
+			res.loadLevel(1);
+		} catch (Exception e) {
+			Debug.i("failed to load level");
+			e.printStackTrace();
+		}
 	      scene.initialize(res);
 	      scene.loadResources();
 	      scene.create();
