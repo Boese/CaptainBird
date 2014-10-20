@@ -4,7 +4,6 @@ import org.andengine.engine.camera.ZoomCamera;
 import org.andengine.entity.IEntity;
 import org.andengine.entity.scene.background.AutoParallaxBackground;
 import org.andengine.util.Constants;
-import org.andengine.util.debug.Debug;
 
 public class MyCamera extends ZoomCamera {
 
@@ -15,15 +14,18 @@ public class MyCamera extends ZoomCamera {
 	private float CH;
 	//private float zoomFactor = 0.8f;
 	
-	public MyCamera(float pX, float pY, float pWidth, float pHeight, float levelEnd, float CW, float CH) {
-		super(pX, pY, pWidth, pHeight);
-		this.levelEnd = levelEnd;
+	public MyCamera(float pX, float pY, float CW, float CH) {
+		super(pX, pY, CW, CH);
 		this.CW = CW;
 		this.CH = CH;
 	}
 	
 	public void addCamera(AutoParallaxBackground a) {
 		this.background = a;
+	}
+	
+	public void setLevelWidth(float w) {
+		this.levelEnd = w;
 	}
 	
 	@Override
@@ -36,7 +38,7 @@ public class MyCamera extends ZoomCamera {
 	public void updateChaseEntity() {
 		if (this.mChaseEntity != null) {
 			final float[] centerCoordinates = this.mChaseEntity.getSceneCenterCoordinates();
-			if(centerCoordinates[Constants.VERTEX_INDEX_X] <= levelEnd) {
+			if(centerCoordinates[Constants.VERTEX_INDEX_X] <= levelEnd-CW/2) {
 				if(centerCoordinates[Constants.VERTEX_INDEX_X] >= super.getCenterX()) {
 					this.setCenter(centerCoordinates[Constants.VERTEX_INDEX_X], CH/2);
 				}

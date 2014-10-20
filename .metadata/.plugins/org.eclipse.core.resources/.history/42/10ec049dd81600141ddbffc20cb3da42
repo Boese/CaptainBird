@@ -1,0 +1,52 @@
+package com.money.captainbird.scene;
+
+import org.andengine.entity.text.Text;
+import org.andengine.opengl.font.Font;
+import org.andengine.opengl.font.FontFactory;
+import org.andengine.opengl.texture.TextureOptions;
+import org.andengine.util.adt.color.Color;
+
+import com.money.captainbird.GameActivity;
+
+public class LoadingScene extends AbstractScene {
+
+	private Text start;
+	private Font font;
+	@Override
+	public void loadResources() {
+		font = FontFactory.createFromAsset(engine.getFontManager(), engine.getTextureManager(), 256, 256, TextureOptions.BILINEAR, activity.getAssets(), "Geeza Pro Bold.ttf", 60f, true, Color.WHITE_ABGR_PACKED_INT);
+	}
+
+	@Override
+	public void create() {
+		getBackground().setColor(Color.GREEN);
+		start = new Text(camera.getCenterX(), GameActivity.CH-200, font, "LOADING...",vbom);
+		font.load();
+		this.attachChild(start);
+	}
+
+	@Override
+	public void unloadResources() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void destroy() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onPause() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onResume() {
+		// TODO Auto-generated method stub
+		
+	}
+	
+}

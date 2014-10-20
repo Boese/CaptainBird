@@ -1,6 +1,5 @@
 package com.money.captainbird.scene;
 
-import org.andengine.entity.sprite.ButtonSprite;
 import org.andengine.util.adt.color.Color;
 
 public class SplashScene extends AbstractScene {

@@ -9,12 +9,10 @@ import org.andengine.engine.options.ScreenOrientation;
 import org.andengine.engine.options.WakeLockOptions;
 import org.andengine.engine.options.resolutionpolicy.FillResolutionPolicy;
 import org.andengine.engine.options.resolutionpolicy.IResolutionPolicy;
-import org.andengine.engine.options.resolutionpolicy.RatioResolutionPolicy;
 import org.andengine.entity.scene.Scene;
 import org.andengine.ui.activity.BaseGameActivity;
 import org.andengine.util.debug.Debug;
 
-import android.view.Display;
 import android.view.KeyEvent;
 
 import com.money.captainbird.mycamera.MyCamera;
@@ -43,7 +41,7 @@ public class GameActivity extends BaseGameActivity {
 	
 	@Override
 	public EngineOptions onCreateEngineOptions() {
-		camera = new MyCamera(0,0,CW,CH,4000, CW, CH);
+		camera = new MyCamera(0,0,CW,CH);
 		camera.setZClippingPlanes(-100, 100);
 		IResolutionPolicy resolutionPolicy = new FillResolutionPolicy();
 		EngineOptions engineOptions = new EngineOptions(true, ScreenOrientation.LANDSCAPE_SENSOR, resolutionPolicy, camera);

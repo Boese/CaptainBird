@@ -1,0 +1,47 @@
+package com.money.captainbird.copter;
+
+import org.andengine.engine.camera.Camera;
+import org.andengine.entity.sprite.AnimatedSprite;
+import org.andengine.extension.physics.box2d.PhysicsConnector;
+import org.andengine.extension.physics.box2d.PhysicsFactory;
+import org.andengine.extension.physics.box2d.PhysicsWorld;
+import org.andengine.opengl.vbo.VertexBufferObjectManager;
+
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.physics.box2d.FixtureDef;
+import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
+import com.makersf.andengine.extension.collisions.entity.sprite.PixelPerfectAnimatedSprite;
+import com.makersf.andengine.extension.collisions.opengl.texture.region.PixelPerfectTiledTextureRegion;
+import com.money.captainbird.resources.ResourceManager;
+import com.money.captainbird.resources.ResourceManager.Resource;
+
+public abstract class Copter extends PixelPerfectAnimatedSprite {
+	private static final float VELOCITY = 3f;
+	private static final float UPWARD_FORCE = 5f;
+	public Body body;
+	
+	public Copter(float pX, float pY, VertexBufferObjectManager vbo, Camera camera, PhysicsWorld physicsWorld, PixelPerfectTiledTextureRegion t) {
+		super(pX, pY, t, vbo);
+		this.setScale(.5f);
+	    createPhysics(camera, physicsWorld);
+		camera.setChaseEntity(this);
+	}
+	
+	private void createPhysics(Camera c, PhysicsWorld p) {
+		final FixtureDef copterFixtureDef = PhysicsFactory.createFixtureDef(0, 0.0f, 0.0f);
+		body = PhysicsFactory.createBoxBody(p, this, BodyType.DynamicBody, copterFixtureDef,32);
+		body.setLinearVelocity(VELOCITY, 0f);
+		p.registerPhysicsConnector(new PhysicsConnector(this, body, true, false));
+		body.setUserData("copter");
+	}
+	
+	public void animateCopter() {
+		body.setLinearVelocity(new Vector2(VELOCITY,0f));
+		float x = body.getLocalCenter().x;
+		float y = body.getLocalCenter().y;
+		body.applyLinearImpulse(new Vector2(0f,UPWARD_FORCE), new Vector2(x,y));
+		this.animate(15, 4);
+	}
+
+}

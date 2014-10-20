@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<resource name="copter">
+	<object>vehicle</object>
+	 <type>pixelperfect</type>
+	 <texture>tiled</texture>
+	 <image>gfx/game/redCopter_tiled.png</image>
+	 <row>2</row>
+	 <col>3</col>
+	</resource>
+	<resource name="coin">
+	<object>collectable</object>
+	 <type>bitmap</type>
+	 <texture>asset</texture>
+	 <image>coin.png</image>
+	</resource>
+	<resource name="pyramid">
+	 <object>obstacle</object>
+	 <type>pixelperfect</type>
+	 <texture>asset</texture>
+	 <image>gfx/game/pyramid.png</image>
+	</resource>
+	<resource name="dune">
+	 <object>obstacle</object>
+	 <type>pixelperfect</type>
+	 <texture>asset</texture>
+	 <image>gfx/game/bottom_dune.png</image>
+	</resource>
+	<resource name="back">
+	 <object>background</object>
+	 <type>bitmap</type>
+	 <texture>asset</texture>
+	 <image>dune_background.png</image>
+	 <speed>0</speed>
+	 <x>0</x>
+	 <y>0</y>
+	</resource>
+	<resource name="cloud1">
+	 <object>layer</object>
+	 <type>bitmap</type>
+	 <texture>asset</texture>
+	 <image>cloudOne.png</image>
+	 <speed>-10</speed>
+	 <x>0</x>
+	 <y>500</y>
+	</resource>
+	<resource name="cloud2">
+	 <object>layer</object>
+	 <type>bitmap</type>
+	 <texture>asset</texture>
+	 <image>cloudOne.png</image>
+	 <speed>-25</speed>
+	 <x>0</x>
+	 <y>550</y>
+	</resource>
+	<resource name="ground">
+	 <object>layer</object>
+	 <type>bitmap</type>
+	 <texture>asset</texture>
+	 <image>front_parallax.png</image>
+	 <speed>-20</speed>
+	 <x>0</x>
+	 <y>0</y>
+	</resource>
+	<resource name="boxlanding">
+	 <object>landing</object>
+	 <type>bitmap</type>
+	 <texture>asset</texture>
+	 <image>landing.png</image>
+	</resource>
+</resources>

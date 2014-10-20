@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<level width="10000" height="720">    
+	<entity x="50" y="500" type="copter" name="copter"/>
+	<entity x="500" y="720" type="obstacle" name="pyramid"/>
+	<entity x="1000" y="500" type="coin" name="coin"/>
+</level>
