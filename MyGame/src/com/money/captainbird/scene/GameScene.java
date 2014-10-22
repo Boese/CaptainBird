@@ -13,6 +13,7 @@ import org.andengine.entity.scene.IOnSceneTouchListener;
 import org.andengine.entity.scene.Scene;
 import org.andengine.entity.scene.background.AutoParallaxBackground;
 import org.andengine.entity.scene.background.ParallaxBackground.ParallaxEntity;
+import org.andengine.entity.sprite.AnimatedSprite;
 import org.andengine.entity.sprite.Sprite;
 import org.andengine.entity.text.Text;
 import org.andengine.extension.physics.box2d.PhysicsFactory;
@@ -21,6 +22,7 @@ import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.font.Font;
 import org.andengine.opengl.font.FontFactory;
 import org.andengine.opengl.texture.TextureOptions;
+import org.andengine.opengl.texture.region.ITiledTextureRegion;
 import org.andengine.opengl.util.GLState;
 import org.andengine.util.SAXUtils;
 import org.andengine.util.adt.color.Color;
@@ -30,6 +32,8 @@ import org.andengine.util.level.constants.LevelConstants;
 import org.andengine.util.level.simple.SimpleLevelEntityLoaderData;
 import org.andengine.util.level.simple.SimpleLevelLoader;
 import org.xml.sax.Attributes;
+
+import android.widget.Toast;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
@@ -43,6 +47,7 @@ import com.makersf.andengine.extension.collisions.opengl.texture.region.PixelPer
 import com.money.captainbird.GameActivity;
 import com.money.captainbird.SceneManager;
 import com.money.captainbird.copter.Copter;
+import com.money.captainbird.resources.MenuItems;
 import com.money.captainbird.resources.Resource;
 import com.money.captainbird.resources.ResourceManager;
 
@@ -50,10 +55,10 @@ public class GameScene extends AbstractScene implements IOnSceneTouchListener {
 
 	//PHYSICS
 	private PhysicsWorld mPhysicsWorld;
-	private static final float GRAVITY_X = Float.parseFloat(ResourceManager.properties.GRAVITY_X);
-	private static final float GRAVITY_Y = Float.parseFloat(ResourceManager.properties.GRAVITY_Y);
-	private static final float LEVEL_W = Float.parseFloat(ResourceManager.properties.LEVEL_W);
-	private static final float LEVEL_H = Float.parseFloat(ResourceManager.properties.LEVEL_H);
+	private static final float GRAVITY_X = ResourceManager.properties.get(WORLD).GRAVITY_X;
+	private static final float GRAVITY_Y = ResourceManager.properties.get(WORLD).GRAVITY_Y;
+	private static final float LEVEL_W = ResourceManager.properties.get(WORLD).LEVEL_W;
+	private static final float LEVEL_H = ResourceManager.properties.get(WORLD).LEVEL_H;
 	
 	//BACKGROUND
 	private AutoParallaxBackground autoParallaxBackground;
@@ -66,6 +71,9 @@ public class GameScene extends AbstractScene implements IOnSceneTouchListener {
 	private Text scoreText;
 	private Boolean landed = false;
 	private static float LAND_CENTER;
+	private static HUD hud;
+	private Sprite pause;
+	private Sprite resume;
 	
 	//XML ATTRIBUTES
 	private static final String TAG_ENTITY = "entity";
@@ -94,9 +102,8 @@ public class GameScene extends AbstractScene implements IOnSceneTouchListener {
 		Font f = FontFactory.createFromAsset(engine.getFontManager(), engine.getTextureManager(), 256, 256, TextureOptions.BILINEAR, activity.getAssets(), "Geeza Pro Bold.ttf", 60f, true, Color.BLACK_ABGR_PACKED_INT);
 		f.load();
 		scoreText = new Text(GameActivity.CW-150, GameActivity.CH-75, f, "Score:0123456789",vbom);
-		HUD hud = new HUD();
+		hud = new HUD();
 		hud.attachChild(scoreText);
-		camera.setHUD(hud);
 		addToScore(0);
 	}
 	
@@ -109,6 +116,7 @@ public class GameScene extends AbstractScene implements IOnSceneTouchListener {
 	@Override
 	public void create() {
 		//LOAD CAMERA LEVEL WIDTH
+		camera.reset();
 		camera.setLevelWidth(LEVEL_W);
 		
 		//SET TOUCH LISTENER
@@ -117,14 +125,55 @@ public class GameScene extends AbstractScene implements IOnSceneTouchListener {
 		//CREATE PHYSICS
 		this.mPhysicsWorld = new PhysicsWorld(new Vector2(GRAVITY_X,GRAVITY_Y), true);
 		this.registerUpdateHandler(mPhysicsWorld);
-		initPhysicsContact();
 		
+		Debug.i("world game scene " + WORLD);
+		Debug.i("LEVEL game scene " + LEVEL);
 		//PARSE XML LEVEL
-		loadLevel(1,1);
+		try {
+			loadLevel(WORLD,LEVEL);
+		} catch (Exception e) {
+			SceneManager.getInstance().showScene(MenuScene.class);
+			activity.toastOnUiThread("level doesn't exist", Toast.LENGTH_SHORT);
+		}
 		
-		//LOAD LEVEL BACKGROUND, BOUNDARIES, SOUNDS
+		//LOAD LEVEL BACKGROUND, BOUNDARIES, SOUNDS, PHYSICS CONTACT
 		initBackground();
         initBorders();
+        initPhysicsContact();
+        initPause();
+        this.registerTouchArea(hud);
+        camera.setHUD(hud);
+        
+	}
+	
+	public void initPause() {
+		pause = new Sprite(200,activity.CH-100,ResourceManager.getInstance().getGameProperty("pause").iTextureRegion,vbom) {
+
+			@Override
+			public boolean onAreaTouched(TouchEvent pSceneTouchEvent,
+					float pTouchAreaLocalX, float pTouchAreaLocalY) {
+				if(pSceneTouchEvent.isActionDown())
+					onPause();
+				return true;
+			}
+			
+		};
+		
+		pause.setScale(3f);
+		resume = new Sprite(200,activity.CH-100,ResourceManager.getInstance().getGameProperty("resume").iTextureRegion,vbom) {
+
+			@Override
+			public boolean onAreaTouched(TouchEvent pSceneTouchEvent,
+					float pTouchAreaLocalX, float pTouchAreaLocalY) {
+				if(pSceneTouchEvent.isActionDown())
+					onResume();
+				return true;
+			}
+			
+		};
+		resume.setScale(3f);
+		hud.attachChild(pause);
+		hud.registerTouchArea(pause);
 	}
 
 	// JUMP COPTER UP
@@ -145,28 +194,28 @@ public class GameScene extends AbstractScene implements IOnSceneTouchListener {
 	// PHYSICS CONTACT ON LANDING
 	public void initPhysicsContact() {
 		mPhysicsWorld.setContactListener(new ContactListener() {
-			private Object a = null;
-			private Object b = null;
 			@Override
 			public void beginContact(Contact contact) {
-				a = contact.getFixtureA().getBody().getUserData();
-				b = contact.getFixtureB().getBody().getUserData();
-					if(a.equals("copter") && b.equals("landingPlatform") ||
-							a.equals("landingPlatform") && b.equals("copter")) {
+				Object a = contact.getFixtureA().getBody().getUserData();
+				Object b = contact.getFixtureB().getBody().getUserData();
+					if(a == ("vehicle") && b == ("landingPlatform") ||
+							a == ("landingPlatform") && b == ("vehicle")) {
 						copter.body.setLinearVelocity(new Vector2(0f,0f));
 						mPhysicsWorld.setGravity(new Vector2(0f,0f));
 						mPhysicsWorld.clearForces();
 						copter.stopAnimation();
 						landed = true;
-						camera.setZoomFactor(1.5f);
-						camera.setCenter(LAND_CENTER, copter.getY()+20);
+						camera.setZoomFactor(1.7f);
+						camera.setCenterDirect(LAND_CENTER, copter.getY()+20);
 						addToScore(5);
+						camera.setChaseEntity(null);
 					}
-					if(a.equals("copter") && b.equals("wall") ||
-							a.equals("wall") && b.equals("wall")) {
+					if(a == ("vehicle") && b == ("wall") ||
+							a == ("wall") && b == ("vehicle")) {
     					explosionSound.play();
     					camera.setHUD(null);
     					autoParallaxBackground.setParallaxChangePerSecond(0);
+    					camera.reset();
     					SceneManager.getInstance().showScene(MenuScene.class);
 					}
 			}
@@ -185,18 +234,19 @@ public class GameScene extends AbstractScene implements IOnSceneTouchListener {
 		autoParallaxBackground = new AutoParallaxBackground(0, 0, 0, 30);
 		
 		ResourceManager.getInstance();
-		for (Resource r : ResourceManager.resourceList) {
+		MenuItems m = ResourceManager.menuList.get(WORLD);
+		for (Resource r : m.resources) {
 			Sprite b;
 			if(r.object.equalsIgnoreCase("layer")) {
-				b = new Sprite(Integer.parseInt(r.x), Integer.parseInt(r.y),r.iTextureRegion,vbom);
+				b = new Sprite(r.x, r.y,r.iTextureRegion,vbom);
 				b.setOffsetCenter(0,0);
-				autoParallaxBackground.attachParallaxEntity(new ParallaxEntity(Integer.parseInt(r.speed),b));
+				autoParallaxBackground.attachParallaxEntity(new ParallaxEntity(r.speed,b));
 			}
 			else if(r.object.equalsIgnoreCase("background")) {
-				b = new Sprite(Integer.parseInt(r.x), Integer.parseInt(r.y),r.iTextureRegion,vbom);
+				b = new Sprite(r.x, r.y,r.iTextureRegion,vbom);
 				b.setSize(GameActivity.CW, GameActivity.CH);
 				b.setOffsetCenter(0,0);
-				autoParallaxBackground.attachParallaxEntity(new ParallaxEntity(Integer.parseInt(r.speed),b));
+				autoParallaxBackground.attachParallaxEntity(new ParallaxEntity(r.speed,b));
 			}
 		}
 		GameScene.this.setBackground(autoParallaxBackground);
@@ -208,19 +258,16 @@ public class GameScene extends AbstractScene implements IOnSceneTouchListener {
 		final FixtureDef wallFixtureDef = PhysicsFactory.createFixtureDef(0, 0.0f, 0.0f);
 		
 		final Line ceiling = new Line(0, GameScene.LEVEL_H, GameScene.LEVEL_W, GameScene.LEVEL_H, vbom);
-		PhysicsFactory.createLineBody(mPhysicsWorld, ceiling, wallFixtureDef);
+		final Body ceilingBody = PhysicsFactory.createLineBody(mPhysicsWorld, ceiling, wallFixtureDef);
+		ceilingBody.setUserData("ceiling");
 		
 		final Line rightwall = new Line(GameScene.LEVEL_W, 0, GameScene.LEVEL_W, GameScene.LEVEL_H, vbom);
 		final Body rightwallBody = PhysicsFactory.createLineBody(mPhysicsWorld, rightwall, wallFixtureDef);
 		rightwallBody.setUserData("wall");
 		
-		final Line ground = new Line(0, 0, GameScene.LEVEL_W, 0, vbom);
+		final Line ground = new Line(0, -1, GameScene.LEVEL_W, -1, vbom);
 		final Body groundBody = PhysicsFactory.createLineBody(mPhysicsWorld, ground, wallFixtureDef);
 		groundBody.setUserData("wall");
-		
-		this.attachChild(ceiling);
-		this.attachChild(rightwall);
-		this.attachChild(ground);
 	}
 
 	
@@ -237,11 +284,18 @@ public class GameScene extends AbstractScene implements IOnSceneTouchListener {
 
 	@Override
 	public void onPause() {
-		
+		this.setIgnoreUpdate(true);
+		hud.unregisterTouchArea(pause);
+		hud.attachChild(resume);
+		hud.registerTouchArea(resume);
 	}
 
 	@Override
 	public void onResume() {
+		hud.unregisterTouchArea(resume);
+		hud.detachChild(resume);
+		hud.registerTouchArea(pause);
+		this.setIgnoreUpdate(false);
 	}
 	
 	// CLEANUP SCENE
@@ -278,7 +332,7 @@ public class GameScene extends AbstractScene implements IOnSceneTouchListener {
 	}
 	
 	// LOAD LEVEL SPRITES THROUGH XML
-	private void loadLevel(int worldID, int levelID)
+	private void loadLevel(final int worldID, int levelID)
 	{
 	    final SimpleLevelLoader levelLoader = new SimpleLevelLoader(vbom);
 	    final FixtureDef FIXTURE_DEF = PhysicsFactory.createFixtureDef(1, 0, 1);
@@ -307,7 +361,7 @@ public class GameScene extends AbstractScene implements IOnSceneTouchListener {
 	            
 	            if (type.equals(TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_COLLECTABLE))
 	            {
-	                levelObject = new Sprite(x, y, res.getResource(name).iTextureRegion, vbom)
+	                levelObject = new Sprite(x, y, res.getResource(name,worldID).iTextureRegion, vbom)
 	                {
 	                	private Boolean collide = false;
 	        			@Override
@@ -341,7 +395,7 @@ public class GameScene extends AbstractScene implements IOnSceneTouchListener {
 	            }          
 	            
 	            else if (type.equals(TAG_ENTITY_ATTRIBUTE_TYPE_VALUE_OBSTACLE)) {
-	            		levelObject = new PixelPerfectSprite(x, y, (PixelPerfectTextureRegion)res.getResource(name).iTextureRegion,vbom) {
+	            		levelObject = new PixelPerfectSprite(x, y, (PixelPerfectTextureRegion)res.getResource(name,worldID).iTextureRegion,vbom) {
 		            		private Boolean collide = false;
 		        			@Override
 		        			protected void onManagedUpdate(float pSecondsElapsed) {
@@ -350,6 +404,7 @@ public class GameScene extends AbstractScene implements IOnSceneTouchListener {
 		        					explosionSound.play();
 		        					camera.setHUD(null);
 		        					autoParallaxBackground.setParallaxChangePerSecond(0);
+		        					camera.reset();
 		        					SceneManager.getInstance().showScene(MenuScene.class);
 		        					this.setIgnoreUpdate(true);
 		        				}
@@ -364,7 +419,7 @@ public class GameScene extends AbstractScene implements IOnSceneTouchListener {
 		            		float y1 = (levelObject.getY()+(levelObject.getHeight()*scale)/2 + .3f);
 		            		float x2 = levelObject.getX()+(levelObject.getWidth()*scale)/2;
 		                	float y2 = y1;
-		                	LAND_CENTER = x1-20;
+		                	LAND_CENTER = x1;
 			        		final Body lineBody = PhysicsFactory.createLineBody(mPhysicsWorld, x1,y1,x2,y2, FIXTURE_DEF, 32);
 			        		lineBody.setUserData("landingPlatform");
 		            	}
@@ -390,7 +445,9 @@ public class GameScene extends AbstractScene implements IOnSceneTouchListener {
 	        }
 	    });
 
-	    levelLoader.loadLevelFromAsset(activity.getAssets(), "Worlds/World_" + worldID + "/levels/" + levelID + ".lvl");
+	    int world = worldID + 1;
+	    int level = levelID + 1;
+	    levelLoader.loadLevelFromAsset(activity.getAssets(), "Worlds/World_" + world + "/levels/" + level + ".lvl");
 	}
 
 }

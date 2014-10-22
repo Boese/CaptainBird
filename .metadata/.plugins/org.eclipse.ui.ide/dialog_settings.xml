@@ -13,11 +13,19 @@
 		<item value="org.eclipse.platform:4.2.1.v20130118-173121-9MF7GHYdG0B5kx4E_SkfZV-1mNjVATf67ZAb7"/>
 		<item value="org.eclipse.rcp:4.2.2.v20130129-152330-7IARAABrMQkGSvMgQnUlz-DQz00h"/>
 	</list>
+	<section name="ChooseWorkspaceDialogSettings">
+		<item value="249" key="DIALOG_Y_ORIGIN"/>
+		<item value="424" key="DIALOG_X_ORIGIN"/>
+	</section>
+	<section name="WORKBENCH_SETTINGS">
+		<list key="ENABLED_TRANSFERS">
+		</list>
+	</section>
 	<section name="CleanDialogSettings">
 		<item value="484" key="DIALOG_WIDTH"/>
 		<item value="22" key="DIALOG_Y_ORIGIN"/>
+		<item value="956" key="DIALOG_X_ORIGIN"/>
 		<item value="354" key="DIALOG_HEIGHT"/>
-		<item value="1918" key="DIALOG_X_ORIGIN"/>
-		<item value="false" key="TOGGLE_SELECTED"/>
+		<item value="true" key="TOGGLE_SELECTED"/>
 	</section>
 </section>

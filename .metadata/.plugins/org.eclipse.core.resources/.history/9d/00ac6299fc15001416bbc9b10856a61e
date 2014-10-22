@@ -1,3 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resource name="coin" type="bitmap" texture="asset" region="texture" image="coin.png" row="0" col="0">
-<resource name="coin2" type="bitmap2" texture="asset2" region="texture2" image="coin2.png" row="0" col="0">

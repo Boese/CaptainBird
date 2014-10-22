@@ -1,9 +1,0 @@
-package com.money.captainbird.background;
-
-public class background {
-	private Sprite front;
-	private Sprite mid;
-	private Sprite back;
-	
-	public void addFront()
-}

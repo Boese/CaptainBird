@@ -18,13 +18,17 @@ public abstract class AbstractScene extends Scene {
 	protected GameActivity activity;
 	protected VertexBufferObjectManager vbom;
 	protected MyCamera camera;
+	public static int LEVEL;
+	public static int WORLD;
 	
-	public void initialize(ResourceManager res) {
+	public void initialize(ResourceManager res, int level, int world) {
 		this.res = res;
 		this.activity = res.activity;
 		this.vbom = res.activity.getVertexBufferObjectManager();
 		this.engine = res.activity.getEngine();
-		this.camera = (MyCamera) engine.getCamera();
+		this.camera = res.activity.camera;
+		AbstractScene.LEVEL = level;
+		AbstractScene.WORLD = world;
 	}
 	
 	public abstract void loadResources();

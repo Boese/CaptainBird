@@ -13,16 +13,19 @@ import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.makersf.andengine.extension.collisions.entity.sprite.PixelPerfectAnimatedSprite;
 import com.makersf.andengine.extension.collisions.opengl.texture.region.PixelPerfectTiledTextureRegion;
 import com.money.captainbird.resources.ResourceManager;
+import com.money.captainbird.scene.AbstractScene;
 
 public abstract class Copter extends PixelPerfectAnimatedSprite {
-	private static final float VELOCITY_X = Float.parseFloat(ResourceManager.properties.VEHICLE_X);
-	private static final float VELOCITY_Y = Float.parseFloat(ResourceManager.properties.VEHICLE_Y);
-	private static final float TAP_X = Float.parseFloat(ResourceManager.properties.TAP_X);
-	private static final float TAP_Y = Float.parseFloat(ResourceManager.properties.TAP_Y);
+	private static final int LEVEL = AbstractScene.LEVEL;
+	private static final int WORLD = AbstractScene.WORLD;
+	private static final float VELOCITY_X = ResourceManager.properties.get(WORLD).VEHICLE_X;
+	private static final float VELOCITY_Y = ResourceManager.properties.get(WORLD).VEHICLE_Y;
+	private static final float TAP_X = ResourceManager.properties.get(WORLD).TAP_X;
+	private static final float TAP_Y = ResourceManager.properties.get(WORLD).TAP_Y;
 	public Body body;
 	
 	public Copter(float pX, float pY, float scale, VertexBufferObjectManager vbo, Camera camera, PhysicsWorld physicsWorld) {
-		super(pX, pY, (PixelPerfectTiledTextureRegion) ResourceManager.getInstance().getResource("copter").iTextureRegion, vbo);
+		super(pX, pY,(PixelPerfectTiledTextureRegion) ResourceManager.getInstance().getResource("vehicle",WORLD).iTextureRegion, vbo);
 		this.setScale(scale);
 	    createPhysics(camera, physicsWorld);
 		camera.setChaseEntity(this);
@@ -33,7 +36,7 @@ public abstract class Copter extends PixelPerfectAnimatedSprite {
 		body = PhysicsFactory.createBoxBody(p, this, BodyType.DynamicBody, copterFixtureDef,32);
 		body.setLinearVelocity(VELOCITY_X, VELOCITY_Y);
 		p.registerPhysicsConnector(new PhysicsConnector(this, body, true, false));
-		body.setUserData("copter");
+		body.setUserData("vehicle");
 	}
 	
 	public void animateCopter() {

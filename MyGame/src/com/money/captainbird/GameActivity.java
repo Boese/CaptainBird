@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import org.andengine.engine.Engine;
 import org.andengine.engine.LimitedFPSEngine;
+import org.andengine.engine.camera.SmoothCamera;
 import org.andengine.engine.options.EngineOptions;
 import org.andengine.engine.options.ScreenOrientation;
 import org.andengine.engine.options.WakeLockOptions;
@@ -41,7 +42,7 @@ public class GameActivity extends BaseGameActivity {
 	
 	@Override
 	public EngineOptions onCreateEngineOptions() {
-		camera = new MyCamera(0,0,CW,CH);
+		camera = new MyCamera(0,0,CW,CH,2000,2000,1);
 		camera.setZClippingPlanes(-100, 100);
 		IResolutionPolicy resolutionPolicy = new FillResolutionPolicy();
 		EngineOptions engineOptions = new EngineOptions(true, ScreenOrientation.LANDSCAPE_SENSOR, resolutionPolicy, camera);
@@ -60,7 +61,12 @@ public class GameActivity extends BaseGameActivity {
 	public void onCreateResources(
 			OnCreateResourcesCallback pOnCreateResourcesCallback)
 			throws IOException {
-		ResourceManager.getInstance().init(this);
+		try {
+			ResourceManager.getInstance().init(this);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		pOnCreateResourcesCallback.onCreateResourcesFinished();
 	}
 

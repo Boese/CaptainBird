@@ -1,0 +1,203 @@
+package com.money.captainbird.scene;
+
+import org.andengine.engine.camera.SmoothCamera;
+import org.andengine.entity.IEntity;
+import org.andengine.entity.scene.IOnSceneTouchListener;
+import org.andengine.entity.scene.Scene;
+import org.andengine.entity.sprite.AnimatedSprite;
+import org.andengine.entity.sprite.ButtonSprite;
+import org.andengine.entity.sprite.Sprite;
+import org.andengine.entity.sprite.TiledSprite;
+import org.andengine.entity.text.Text;
+import org.andengine.input.touch.TouchEvent;
+import org.andengine.input.touch.detector.SurfaceGestureDetector;
+import org.andengine.input.touch.detector.SurfaceGestureDetectorAdapter;
+import org.andengine.opengl.font.Font;
+import org.andengine.opengl.font.FontFactory;
+import org.andengine.opengl.texture.TextureOptions;
+import org.andengine.opengl.texture.region.ITiledTextureRegion;
+import org.andengine.util.adt.color.Color;
+import org.andengine.util.debug.Debug;
+
+import android.view.GestureDetector;
+import android.view.MotionEvent;
+
+import com.badlogic.gdx.math.Vector2;
+import com.money.captainbird.GameActivity;
+import com.money.captainbird.SceneManager;
+import com.money.captainbird.resources.MenuItems;
+import com.money.captainbird.resources.Resource;
+import com.money.captainbird.resources.ResourceManager;
+import com.money.captainbird.parallax.ParallaxLayer;
+import com.money.captainbird.parallax.ParallaxLayer.ParallaxEntity;
+
+public class WorldSelectionScene extends AbstractScene  {
+
+	private static int borderspacing = 1800;
+	
+
+	private Scene World1;
+	private Scene World2;
+	private float touchPos;
+	private Text levelNumber;
+	private Text swipe;
+	private Font f;
+	private Font f2;
+	
+	@Override
+	public void loadResources() {
+		borderspacing = 1800;
+		f = FontFactory.createFromAsset(engine.getFontManager(), engine.getTextureManager(), 256, 256, TextureOptions.BILINEAR, activity.getAssets(), "Geeza Pro Bold.ttf", 38f, false, Color.WHITE_ABGR_PACKED_INT);
+		f.load();
+		f2 = FontFactory.createFromAsset(engine.getFontManager(), engine.getTextureManager(), 256, 256, TextureOptions.BILINEAR, activity.getAssets(), "Geeza Pro Bold.ttf", 100f, false, Color.WHITE_ABGR_PACKED_INT);
+		f2.load();
+	}
+
+	@Override
+	public void create() {
+		camera.reset();
+		camera.setMaxVelocityX(3000);
+		
+		World1 = new Scene();
+		World2 = new Scene();
+		
+		initBackground(World1, 0);
+		initBackground(World2, 1);
+		World1.setPosition(0, 0);
+		World2.setPosition(2400, 0);
+		
+		
+		this.setOnSceneTouchListener(new IOnSceneTouchListener() {
+			private boolean handled = false;
+			@Override
+			public boolean onSceneTouchEvent(Scene pScene,
+					TouchEvent pSceneTouchEvent) {
+					if(pSceneTouchEvent.getAction() == MotionEvent.ACTION_DOWN)
+			        {
+			            touchPos = pSceneTouchEvent.getX();
+			            handled = true;
+			        }
+					if(pSceneTouchEvent.getAction() == MotionEvent.ACTION_MOVE && handled)
+			        {
+			            if(pSceneTouchEvent.getX() < touchPos) {
+			            	camera.setCenter(2400 + activity.CW/2, activity.CH/2);
+			            }
+			            if(pSceneTouchEvent.getX() > touchPos) {
+			            	camera.setCenter(activity.CW/2, activity.CH/2);
+			            }
+			            handled = false;
+			        }
+				return false;
+			}
+		});
+		
+		//swipe = new Text(activity.CW/2,100,f2,"< Swipe >",vbom);
+		//this.attachChild(swipe);
+	}
+
+		// INITIALIZE PARALLAX BACKGROUND
+		public void initBackground(Scene w, final int pos) {
+			Sprite border = new Sprite(borderspacing,activity.CH/2,1200,activity.CH,ResourceManager.getInstance().getGameProperty("border").iTextureRegion,vbom);
+			border.setZIndex(10);
+			this.attachChild(border);
+			
+			
+			ParallaxLayer parallaxLayer = new ParallaxLayer(camera, true);
+			parallaxLayer.setParallaxChangePerSecond(10);
+			
+			ResourceManager.getInstance();
+			MenuItems l = ResourceManager.getInstance().menuList.get(pos);
+			for (Resource r : l.resources) {
+				Sprite b;
+				AnimatedSprite t;
+				
+				if(r.object.equalsIgnoreCase("layer")) {
+					b = new Sprite(Integer.parseInt(r.x), Integer.parseInt(r.y),r.iTextureRegion,vbom);
+					b.setOffsetCenter(0, 0);
+					float speed = Float.parseFloat(r.speed);
+					parallaxLayer.attachParallaxEntity(new ParallaxEntity(speed,b));
+					
+				}
+				else if(r.object.equalsIgnoreCase("background")) {
+					b = new Sprite(Integer.parseInt(r.x), Integer.parseInt(r.y),r.iTextureRegion,vbom);
+					b.setSize(activity.CW, activity.CH);
+					b.setOffsetCenter(0, 0);
+					float speed = Float.parseFloat(r.speed);
+					parallaxLayer.attachParallaxEntity(new ParallaxEntity(speed,b));
+				}
+				else if(r.object.equalsIgnoreCase("background_animated")) {
+					t = new AnimatedSprite(Integer.parseInt(r.x), Integer.parseInt(r.y),(ITiledTextureRegion) r.iTextureRegion,vbom);
+					t.setSize(activity.CW, activity.CH);
+					t.setOffsetCenter(0, 0);
+					float speed = Float.parseFloat(r.speed);
+					t.animate(50);
+					parallaxLayer.attachParallaxEntity(new ParallaxEntity(speed,t));
+				}
+				
+			}
+			w.attachChild(parallaxLayer);
+			
+			int levels = Integer.parseInt(ResourceManager.properties.get(pos).LEVEL_NUM);
+			int colstart = 140;
+			int colbuffer = 50 + 180;
+			int rowbuffer = 180;
+			int col = colstart;
+			int row = activity.CH - 90;
+			int i = 0;
+			
+			for (; i < levels; i++) {
+				levelNumber = new Text(0, 0, f, "Score:0123456789",vbom);
+				final int level = i;
+				if(i%5 == 0 && i != 0) {
+					col = colstart;
+					row -= rowbuffer;
+				}
+				ButtonSprite b = new ButtonSprite(col,row,ResourceManager.getInstance().getGameProperty("levelbutton").iTextureRegion,vbom) {
+
+					@Override
+					public boolean onAreaTouched(TouchEvent pSceneTouchEvent,
+							float pTouchAreaLocalX, float pTouchAreaLocalY) {
+						SceneManager.getInstance().showScene(GameScene.class, level, pos);
+						return super
+								.onAreaTouched(pSceneTouchEvent, pTouchAreaLocalX, pTouchAreaLocalY);
+					}
+					
+				};
+				col+=colbuffer;
+				b.setScale(3f);
+				WorldSelectionScene.this.registerTouchArea(b);
+				w.attachChild(b);
+				int level_num = i+1;
+				levelNumber.setText("LEVEL " + level_num);
+				levelNumber.setPosition(b);
+				w.attachChild(levelNumber);
+			}
+			
+			w.setBackgroundEnabled(false);
+			this.attachChild(w);
+			this.sortChildren();
+			borderspacing+=2400;
+		}
+
+	@Override
+	public void unloadResources() {
+	}
+
+	@Override
+	public void destroy() {
+		
+	}
+
+	@Override
+	public void onPause() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onResume() {
+		// TODO Auto-generated method stub
+		
+	}
+
+}

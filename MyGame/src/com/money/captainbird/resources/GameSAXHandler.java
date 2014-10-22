@@ -1,25 +1,29 @@
 package com.money.captainbird.resources;
 
+import java.util.List;
+
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
-import org.xml.sax.helpers.DefaultHandler;
 
-public class SAXHandler extends DefaultHandler{
-	String content = null;
+public class GameSAXHandler extends SAXHandler {
+
+	List<Resource> g = ResourceManager.gameProperties;
 	Resource r = null;
-	Properties p = null;
+	String content = null;
+	
 	@Override
-	public void startElement(String uri, String localName, String qName, Attributes attributes)
-							throws SAXException {
+	public void startElement(String uri, String localName, String qName,
+			Attributes attributes) throws SAXException {
 		if(qName.equalsIgnoreCase("resource")) {
 			r = new Resource();
 			r.name = attributes.getValue("name");
 		}
-		if(qName.equalsIgnoreCase("properties")) {
-			p = new Properties();
+		if(qName.equalsIgnoreCase("gameproperties")) {
+			ResourceManager.worlds = Integer.parseInt(attributes.getValue("worlds"));
 		}
+		super.startElement(uri, localName, qName, attributes);
 	}
-
+	
 	@Override
 	public void characters(char[] ch, int start, int length)
 			throws SAXException {
@@ -30,40 +34,10 @@ public class SAXHandler extends DefaultHandler{
 	@Override
 	public void endElement(String uri, String localName, String qName)
 			throws SAXException {
-		if(qName.equalsIgnoreCase("properties")) {
-			ResourceManager.getInstance();
-			ResourceManager.properties.add(p);
-		}
-		if(qName.equalsIgnoreCase("gravity_x")) {
-			p.GRAVITY_X = Float.parseFloat(content);
-		}
-		if(qName.equalsIgnoreCase("gravity_y")) {
-			p.GRAVITY_Y = Float.parseFloat(content);
-		}
-		if(qName.equalsIgnoreCase("vehicle_x")) {
-			p.VEHICLE_X = Float.parseFloat(content);
-		}
-		if(qName.equalsIgnoreCase("vehicle_y")) {
-			p.VEHICLE_Y = Float.parseFloat(content);
-		}
-		if(qName.equalsIgnoreCase("tap_x")) {
-			p.TAP_X = Float.parseFloat(content);
-		}
-		if(qName.equalsIgnoreCase("tap_y")) {
-			p.TAP_Y = Float.parseFloat(content);
-		}
-		if(qName.equalsIgnoreCase("level_w")) {
-			p.LEVEL_W = Float.parseFloat(content);
-		}
-		if(qName.equalsIgnoreCase("level_h")) {
-			p.LEVEL_H = Float.parseFloat(content);
-		}
-		if(qName.equalsIgnoreCase("levelNum")) {
-			p.LEVEL_NUM = Integer.parseInt(content);
+		if(qName.equalsIgnoreCase("gameproperties")) {
 		}
 		if(qName.equalsIgnoreCase("resource")) {
-			ResourceManager.getInstance();
-			ResourceManager.resourceList.add(r);
+			g.add(r);
 		}
 		if(qName.equalsIgnoreCase("object")) {
 			r.object = content;
@@ -92,9 +66,6 @@ public class SAXHandler extends DefaultHandler{
 		if(qName.equalsIgnoreCase("y")) {
 			r.y = Float.parseFloat(content);
 		}
-		if(qName.equalsIgnoreCase("spacing")) {
-			r.spacing = Integer.parseInt(content);
-		}
 		if(qName.equalsIgnoreCase("yAxis")) {
 			if(content.equalsIgnoreCase("true")) {
 				r.yAxis = true;
@@ -102,5 +73,5 @@ public class SAXHandler extends DefaultHandler{
 		}
 		super.endElement(uri, localName, qName);
 	}
-}
 
+}

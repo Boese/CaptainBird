@@ -3,8 +3,6 @@
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.DEPENDENCIES"/>
-	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="src" path="gen"/>
 	<classpathentry kind="lib" path="/Users/chrisboese/Desktop/adt-bundle-mac-x86_64-20140702/sdk/platforms/android-15/android.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="http://developer.android.com/reference/"/>
@@ -14,5 +12,7 @@
 		</accessrules>
 	</classpathentry>
 	<classpathentry kind="src" path="/AndEngine"/>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="gen"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>
